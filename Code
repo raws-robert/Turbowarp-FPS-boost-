@@ -1,0 +1,59 @@
+class FPSExtension {
+  constructor(runtime) {
+    this.runtime = runtime;
+    this.fps = 0;
+    this.lastFrameTime = performance.now();
+    this.updateFPS();
+  }
+
+  getInfo() {
+    return {
+      id: 'fpsExtension',
+      name: 'FPS Extension',
+      blocks: [
+        {
+          opcode: 'setFPS',
+          blockType: Scratch.BlockType.COMMAND,
+          text: 'Set FPS to [FPS]',
+          arguments: {
+            FPS: {
+              type: Scratch.ArgumentType.NUMBER,
+              defaultValue: 30
+            }
+          }
+        },
+        {
+          opcode: 'getCurrentFPS',
+          blockType: Scratch.BlockType.REPORTER,
+          returnType: Scratch.ArgumentType.NUMBER,
+          text: 'current FPS'
+        }
+      ]
+    };
+  }
+
+  setFPS(args) {
+    const fps = args.FPS;
+    if (fps > 0 && fps <= 60) {
+      this.runtime.setTurboMode(1);
+      this.runtime.turboFPS = fps;
+    }
+  }
+
+  updateFPS() {
+    const now = performance.now();
+    const delta = now - this.lastFrameTime;
+    this.fps = 1000 / delta;
+    this.lastFrameTime = now;
+
+    setTimeout(() => {
+      this.updateFPS();
+    }, 1000); // Update every second
+  }
+
+  getCurrentFPS() {
+    return Math.round(this.fps);
+  }
+}
+
+Scratch.extensions.register(new FPSExtension());
